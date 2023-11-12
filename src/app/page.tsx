@@ -1,6 +1,7 @@
 import Head from "next/head";
 import { CreateTodo } from "~/components/organisms/CreateTodo";
 import { LogButtonWrapper } from "~/components/organisms/LogButtonWrapper";
+import { Todos } from "~/components/organisms/Todos";
 
 function Home() {
   return (
@@ -18,6 +19,7 @@ function Home() {
           <LogButtonWrapper />
           <div>
             <CreateTodo />
+            <Todos />
           </div>
         </main>
       </div>

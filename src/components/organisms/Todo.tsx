@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { type Todo } from "~/server/types";
 import { api } from "~/trpc/react";
