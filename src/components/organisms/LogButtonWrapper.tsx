@@ -10,11 +10,10 @@ export const LogButtonWrapper = () => {
   return (
     <>
       {status === "loading" && null}
-      {sessionData ? (
+      {status === "authenticated" && sessionData && (
         <LoggedButton email={sessionData.user.email as unknown as string} />
-      ) : (
-        <NoLoggedButton />
       )}
+      {status === "unauthenticated" && <NoLoggedButton />}
     </>
   );
 };
