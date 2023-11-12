@@ -1,3 +1,19 @@
+# Next.js
+
+- using App Router in v13
+
+# BaaS
+
+- [supabase](https://supabase.com/docs)
+
+# Deployment
+
+- [Vercel](https://vercel.com/docs)
+
+# Production URL
+
+https://t3-todo-app-self.vercel.app/
+
 # Create T3 App
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
