@@ -1,7 +1,6 @@
 import { getProviders } from "next-auth/react";
 import Image from "next/image";
 import { LoginButton } from "~/components/atoms/LoginButton";
-import { SessionProviderWrapper } from "~/components/templates/SessionProviderWrapper";
 
 export default async function SignIn() {
   // ここで、認証の方法（providers）を取得する
@@ -19,12 +18,10 @@ export default async function SignIn() {
               <div className="flexjustify-center"></div>
               {Object.values(providers ?? []).map((provider) => (
                 <div key={provider.name}>
-                  <SessionProviderWrapper>
-                    <LoginButton
-                      providerId={provider.id}
-                      providerName={provider.name}
-                    />
-                  </SessionProviderWrapper>
+                  <LoginButton
+                    providerId={provider.id}
+                    providerName={provider.name}
+                  />
                 </div>
               ))}
             </div>
