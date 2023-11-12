@@ -9,7 +9,7 @@ export const LogButtonWrapper = () => {
 
   return (
     <>
-      {status !== "loading" && null}
+      {status === "loading" && null}
       {sessionData ? (
         <LoggedButton email={sessionData.user.email as unknown as string} />
       ) : (
