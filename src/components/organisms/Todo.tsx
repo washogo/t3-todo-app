@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { type Todo } from "~/server/types";
 import { api } from "~/trpc/react";
 
@@ -16,18 +17,93 @@ export function Todo({ todo }: TodoProps) {
   const utils = api.useUtils();
 
   const { mutate: toggleMutation } = api.todo.toggle.useMutation({
+    onMutate: async ({ id, is_completed }) => {
+      await utils.todo.all.cancel();
+      const previousTodos = utils.todo.all.getData();
+      // 対象のtodoのisCompletedを更新したtodoの一覧でキャッシュを更新する
+      utils.todo.all.setData(undefined, (prev) => {
+        if (!prev) return previousTodos;
+        return prev.map((t) => {
+          if (t.id === id) {
+            return {
+              ...t,
+              isCompleted: is_completed,
+            };
+          }
+          return t;
+        });
+      });
+      return { previousTodos };
+    },
+    onSuccess: ({ isCompleted }) => {
+      if (isCompleted) {
+        toast.success("Todo completed🍺");
+      }
+    },
+    onError: (err, { is_completed }, context) => {
+      toast.error(
+        `An error occured when marking todo as ${
+          is_completed ? "completed" : "uncompleted"
+        }`,
+      );
+      console.log(err);
+      if (!context) return;
+      utils.todo.all.setData(undefined, () => context.previousTodos);
+    },
     onSettled: async () => {
       await utils.todo.all.invalidate();
     },
   });
 
   const { mutate: deleteMutation } = api.todo.delete.useMutation({
+    onMutate: async (deleteId) => {
+      await utils.todo.all.cancel();
+      const previousTodos = utils.todo.all.getData();
+      // 対象のtodoを削除したtodoの一覧でキャッシュを更新する
+      utils.todo.all.setData(undefined, (prev) => {
+        if (!prev) return previousTodos;
+        return prev.filter((t) => t.id !== deleteId);
+      });
+      return { previousTodos };
+    },
+    onError: (err, _, context) => {
+      toast.error("An error occured when deleting todo");
+      console.log(err);
+      if (!context) return;
+      utils.todo.all.setData(undefined, () => context.previousTodos);
+    },
     onSettled: async () => {
       await utils.todo.all.invalidate();
     },
   });
 
   const { mutate: updateMutation } = api.todo.update.useMutation({
+    onMutate: async ({ id, text: currentText }) => {
+      await utils.todo.all.cancel();
+      const previousTodos = utils.todo.all.getData();
+      const previousText = text;
+      utils.todo.all.setData(undefined, (prev) => {
+        if (!prev) return previousTodos;
+        return prev.map((t) => {
+          if (t.id === id) {
+            return {
+              ...t,
+              text: currentText,
+            };
+          }
+          return t;
+        });
+      });
+      setCurrentTodo(currentText);
+      return { previousText, previousTodos };
+    },
+    onError: (err, _, context) => {
+      toast.error("An error occured when updating todo");
+      console.log(err);
+      if (!context) return;
+      setCurrentTodo(context.previousText);
+      utils.todo.all.setData(undefined, () => context.previousTodos);
+    },
     onSettled: async () => {
       await utils.todo.all.invalidate();
     },

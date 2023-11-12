@@ -1,6 +1,7 @@
 import { createInput, toggleInput, updateInput } from "~/server/types";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
+// import { TRPCError } from "@trpc/server";
 
 export const todoRouter = createTRPCRouter({
   all: protectedProcedure.query(async ({ ctx }) => {
@@ -20,6 +21,11 @@ export const todoRouter = createTRPCRouter({
     }));
   }),
   create: protectedProcedure.input(createInput).mutation(({ ctx, input }) => {
+    // ロールバック確認用
+    // throw new TRPCError({
+    //   code: "INTERNAL_SERVER_ERROR",
+    //   message: "test failed",
+    // });
     return ctx.db.todo.create({
       data: {
         text: input,
@@ -32,6 +38,11 @@ export const todoRouter = createTRPCRouter({
     });
   }),
   toggle: protectedProcedure.input(toggleInput).mutation(({ ctx, input }) => {
+    // ロールバック確認用
+    // throw new TRPCError({
+    //   code: "INTERNAL_SERVER_ERROR",
+    //   message: "test failed",
+    // });
     const { id, is_completed } = input;
     return ctx.db.todo.update({
       where: {
@@ -43,6 +54,11 @@ export const todoRouter = createTRPCRouter({
     });
   }),
   update: protectedProcedure.input(updateInput).mutation(({ ctx, input }) => {
+    // ロールバック確認用
+    // throw new TRPCError({
+    //   code: "INTERNAL_SERVER_ERROR",
+    //   message: "test failed",
+    // });
     const { id, text } = input;
     return ctx.db.todo.update({
       where: {
@@ -54,6 +70,11 @@ export const todoRouter = createTRPCRouter({
     });
   }),
   delete: protectedProcedure.input(z.string()).mutation(({ ctx, input }) => {
+    // ロールバック確認用
+    // throw new TRPCError({
+    //   code: "INTERNAL_SERVER_ERROR",
+    //   message: "test failed",
+    // });
     return ctx.db.todo.delete({
       where: {
         id: input,

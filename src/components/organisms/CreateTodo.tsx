@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { createInput } from "~/server/types";
+import { type Todo, createInput } from "~/server/types";
 import { api } from "~/trpc/react";
 
 export function CreateTodo() {
@@ -10,7 +10,43 @@ export function CreateTodo() {
 
   const utils = api.useUtils();
   const { mutate } = api.todo.create.useMutation({
+    // onMutateは、mutationが実行される前に実行される関数
+    // 実際の処理が成功したかどうかに関わらない
+    onMutate: async (newTodo) => {
+      // キャッシュが更新されないようにクエリをキャンセルする
+      await utils.todo.all.cancel();
+      // getData()は、キャッシュから更新前のデータのスナップショットを取得するための同期関数
+      const previousTodos = utils.todo.all.getData();
+      // setData()は、クエリのキャッシュデータを即座に更新するための同期関数
+      utils.todo.all.setData(undefined, (prev) => {
+        const optimisticTodo: Todo = {
+          // 楽観的更新を行うためにidは仮の値を設定する
+          id: "optimistic-todo-id",
+          text: newTodo,
+          isCompleted: false,
+        };
+        if (!prev) return [optimisticTodo];
+        // 仮のidが付与された楽観的更新用のtodoを配列の先頭に追加する
+        return [optimisticTodo, ...prev];
+      });
+      setNewTodo("");
+      // サーバーがエラーを返した場合はロールバックを行うため、更新前のデータを返す
+      return { previousTodos };
+    },
+    // onErrorは、プロシージャでエラーが発生した場合に実行される関数
+    onError: (err, newTodo, context) => {
+      // エラーを表示する
+      toast.error("An error occurred while creating todo");
+      console.error(err);
+      // フォームに入力した値を復元する
+      setNewTodo(newTodo);
+      // キャッシュデータを更新前のデータに戻す
+      if (!context) return;
+      utils.todo.all.setData(undefined, () => context.previousTodos);
+    },
+    // onSettledは、プロシージャが成功したか失敗したかに関わらず実行される関数
     onSettled: async () => {
+      // 仮のidを付与した楽観的更新用のtodoを、サーバーから返された正しいidを持つtodoに置き換える
       await utils.todo.invalidate();
     },
   });
