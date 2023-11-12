@@ -22,7 +22,6 @@ export const LoggedButton = ({ email }: LoggedButtonProps) => {
           Sign out
         </button>
       </div>
-      <div>Todo components coming soon...</div>
     </>
   );
 };

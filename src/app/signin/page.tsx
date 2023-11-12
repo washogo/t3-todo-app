@@ -4,9 +4,9 @@ import { LoginButton } from "~/components/atoms/LoginButton";
 import { SessionProviderWrapper } from "~/components/templates/SessionProviderWrapper";
 
 export default async function SignIn() {
-  // ここで、認証の方法（providers）を取得しています
-  // 今回は、GitHub による認証だけですが、複数の認証方法（Google・Twitterなど）を取得することが出来ます
-  // 一つも認証方法が取得できなかった場合は、providers に空の配列をセットしています
+  // ここで、認証の方法（providers）を取得する
+  // 複数の認証方法（Google・Twitterなど）を取得する
+  // 一つも認証方法が取得できなかった場合は、providers に空の配列をセットする
   const providers = await getProviders();
 
   return (
